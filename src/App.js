@@ -1,76 +1,63 @@
-import {useEffect, useState} from 'react';
-import logo from './logo.svg';
+import {useMemo,useEffect, useState, useRef} from 'react';
 import './App.css';
+import PostList from './components/PostList';
+import PostForm from './components/PostForm';
+import MySelect from './components/UI/select/MySelect';
+import MyInput from './components/UI/input/MyInput';
 
 
 const App = () => {
-  const [counter, setCounter] = useState(0);
-  const [buttons, setButtons] = useState([{name: '++'} ,{name: '--'} , {name: 'reset'}]);
-  const [users, setUsers] = useState([
-  {name: 'serega',age: '21',job: 'Programmer'},
-  {name: 'igor',age: '23',job: 'Operator'},
-  {name: 'eugene',age: '26',job: 'President'}
+  const [posts, setPosts] = useState([
+    {id: 1, title: 'вв', body: 'бб'},
+    {id: 2, title: 'гг', body: 'аа'},
+    {id: 3, title: 'аа', body: 'яя'}
   ])
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [job, setJob] = useState('');
-  const [countUsers, setCountUsers] = useState();
-  const [timeout, setTime] = useState(0);
+  const [selectedSort, setSelectedSort] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    setTimeout(() => {
-      setTime(timeout + 1);
-    }, 1000);
-    return () => clearInterval()
-  })
+  const sortedPosts = useMemo(() => {
+      if (selectedSort) {
+        return [...posts].sort((a, b) => a[selectedSort].localeCompare(b[selectedSort]))
+      }
+      return posts;
+  }, [selectedSort, posts])
 
-  const changeNumber = (event) => {
-    switch (event) {
-      case '++':
-        setCounter(counter + 1)
-        break;
-      case '--':
-        setCounter(counter - 1)
-          break;
-      case 'reset':
-        setCounter(0)
-          break;
-    
-      default:
-        break;
-    }
+  const sortedAndSearchPosts = useMemo(() => {
+    return sortedPosts.filter(post => post.title.includes(searchQuery))
+  }, [searchQuery, sortedPosts])
+
+  const createPost = (newPost) => {
+    setPosts([...posts, newPost])
   }
 
-  const button = buttons.map(item => {
-    return <button name = {item.name} onClick={(event) => changeNumber(event.target.name)}>{item.name}</button>
-  })
-
-  const user = users.map(us => {
-    return <div>Имя: {us.name},Возраст: {us.age},Работа: {us.job}</div>
-  })
-
-  const addUser = () => {
-    setUsers([...users, {name, age, job}]);
-    setName('');
-    setAge('');
-    setJob('');
-    setCountUsers(users.length+1);
+  const removePost = (post) => {
+    setPosts(posts.filter(p => p.id !== post.id))
   }
 
-  
   return (
     <div className="App">
-      <header className="App-header">
-        {counter}
-        {button}
-        <div>Количество пользователей {countUsers} </div>
-        {user}
-        <input value = {name} placeholder = 'Введите имя' onChange = {(event) => setName(event.target.value)}></input>
-        <input value = {age} placeholder = 'Введите возраст' onChange = {(event) => setAge(event.target.value)}></input>
-        <input value = {job} placeholder = 'Введите работу' onChange = {(event) => setJob(event.target.value)}></input>
-        <button onClick = {(event) => addUser()}>addUser</button>
-        <div>Количество счастливых людей на планете {timeout}</div>
-      </header>
+      <PostForm create={createPost}/>
+      <hr style={{margin: '15px 0'}}/>
+      <div>
+        <MyInput>
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Поиск..."
+        </MyInput>
+        <MySelect
+          value={selectedSort}
+          onChange={sortedAndSearchPosts}
+          defaultValue = "Сортировка"
+          options={[
+            {value: 'title', name: 'По названию'},
+            {value: 'body', name: 'По описанию'},
+          ]}
+        />
+      </div>
+      {posts.length !== 0
+            ? <PostList remove={removePost} posts = {sortedAndSearchPosts} title = "Список JS"/>
+            : <h1 style={{textAlign: 'center'}}>Посты не найдены</h1>
+      }
     </div>
   );
 }
