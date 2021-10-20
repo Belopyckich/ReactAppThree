@@ -46,7 +46,7 @@
 
 .navbar {
   height: 50px;
-  width: 100px;
+  width: auto;
   display: flex;
   align-items: center;
   padding: 0 15px;
@@ -55,4 +55,8 @@
 
 .navbar__links {
   margin-left: auto;
+}
+
+.post__btns {
+  display: flex;
 }

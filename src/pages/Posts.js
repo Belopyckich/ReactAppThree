@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import '../App.css'
 import MyModal from '../components/UI/MyModal/MyModal';
 import PostList from '../components/PostList';
@@ -21,16 +21,19 @@ const Posts = () => {
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const sortedAndSearchPosts = usePosts(posts, filter.sort, filter.query);
+  const lastElement = useRef()
 
 
   const [fetchPosts, isPostsLoading, postError] = useFetching (async () => {
       const response = await PostService.getAll(limit, page);
       setPosts(response.data);
-      console.log(response.headers['x-total-count']);
       const totalCount = response.headers['x-total-count'];
       setTotalPages(getPageCount(totalCount, limit));
   })
 
+  useEffect(() => {
+
+  }, [])
   useEffect(() => {
     fetchPosts();
   }, [page])
@@ -48,7 +51,6 @@ const Posts = () => {
     setPage(page)
     fetchPosts(limit, page);
   }
-
   return (
     <div className="App">
       <MyButton style = {{marginTop: 30}} onClick = {() => setModal(true)}>
@@ -72,7 +74,7 @@ const Posts = () => {
       <Pagination 
         page={page} 
         changePage={changePage}
-        totalPage={totalPages}
+        totalPages={totalPages}
       />
     </div>
   );
