@@ -4,7 +4,6 @@ import {getPagesArray} from "../../../utils/pages"
 
 const Pagination = ({totalPages, page, changePage}) => {
     let pagesArray = getPagesArray(totalPages);
-    console.log(pagesArray);
     return (
         <div className="page__wrapper">
           {pagesArray.map(p => 
